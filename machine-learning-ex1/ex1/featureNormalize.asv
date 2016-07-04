@@ -24,15 +24,14 @@ sigma = zeros(1, size(X, 2));
 %               each feature. 
 %
 % Hint: You might find the 'mean' and 'std' functions useful.
-% 
-numFeatures=size(X,2);
-%meanFeatures=zeros(numFeatures,1);
-for ftr=1:numFeatures
-    %meanFeatures(ftr)=mean(X(:,ftr));
-    mu(1,ftr)=mean(X(:,ftr));
-    sigma(1,ftr)=std(X(:,ftr));
-    X_norm(:,ftr)=(X(:,ftr)-mu(1,ftr))./sigma(1,ftr);
-end
+%       
+meanFeatures=z
+
+
+
+
+
+
 
 % ============================================================
 
