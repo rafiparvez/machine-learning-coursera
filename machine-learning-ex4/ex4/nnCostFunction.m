@@ -14,12 +14,12 @@ function [J grad] = nnCostFunction(nn_params, ...
 %   partial derivatives of the neural network.
 %
 
-% Reshape nn_params back into the parameters Theta1 and Theta2, the weight matrices
+% Reshape nn_params back into the parameters Theta_2 and Theta2, the weight matrices
 % for our 2 layer neural network
-Theta1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
+Theta_1 = reshape(nn_params(1:hidden_layer_size * (input_layer_size + 1)), ...
                  hidden_layer_size, (input_layer_size + 1));
 
-Theta2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
+Theta_2 = reshape(nn_params((1 + (hidden_layer_size * (input_layer_size + 1))):end), ...
                  num_labels, (hidden_layer_size + 1));
 
 % Setup some useful variables
@@ -27,8 +27,8 @@ m = size(X, 1);
          
 % You need to return the following variables correctly 
 J = 0;
-Theta1_grad = zeros(size(Theta1));
-Theta2_grad = zeros(size(Theta2));
+Theta1_grad = zeros(size(Theta_1));
+Theta2_grad = zeros(size(Theta_2));
 
 % ====================== YOUR CODE HERE ======================
 % Instructions: You should complete the code by working through the
@@ -40,8 +40,8 @@ Theta2_grad = zeros(size(Theta2));
 %         computed in ex4.m
 %
 % Part 2: Implement the backpropagation algorithm to compute the gradients
-%         Theta1_grad and Theta2_grad. You should return the partial derivatives of
-%         the cost function with respect to Theta1 and Theta2 in Theta1_grad and
+%         Theta_2_grad and Theta2_grad. You should return the partial derivatives of
+%         the cost function with respect to Theta_2 and Theta2 in Theta_2_grad and
 %         Theta2_grad, respectively. After implementing Part 2, you can check
 %         that your implementation is correct by running checkNNGradients
 %
@@ -58,34 +58,44 @@ Theta2_grad = zeros(size(Theta2));
 %
 %         Hint: You can implement this around the code for
 %               backpropagation. That is, you can compute the gradients for
-%               the regularization separately and then add them to Theta1_grad
+%               the regularization separately and then add them to Theta_2_grad
 %               and Theta2_grad from Part 2.
 %
 
 
+X=[ones(m,1) X];
+delta_2=zeros(num_labels,1);
+for i=1:m
+    %Implementing Cost Func
+    y_vect=(1:num_labels==y(i));
+    a_1=X(i,:);
+    z_2=a_1*transpose(Theta_1);
+    a_2= sigmoid(z_2);
+    a_2=[1 a_2];
+    h = sigmoid(a_2*transpose(Theta_2));
+    J=J+(-1/m)*sum((y_vect.*log(h))+((1-y_vect).*log(1-h))); 
+    
+    %Implementing back prop
+    delta_3=transpose(h-y_vect);
+    delta_2=(Theta_2)'*delta_3.*(a_2.*(1-a_2))';
+    delta_2 = delta_2(2:end);
+    Theta1_grad=Theta1_grad+delta_2*a_1;
+    Theta2_grad=Theta2_grad+delta_3*a_2;
+end
+Theta_1_temp = Theta_1(:,2:end);
+Theta_2_temp = Theta_2(:,2:end);
+J=J + (lambda/(2*m))*(sum(Theta_1_temp(:).^2) + sum(Theta_2_temp(:).^2));
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+Theta1_grad=(1/m)*Theta1_grad;
+Theta2_grad=(1/m)*Theta2_grad;
 % -------------------------------------------------------------
-
+%regularizing the gradients
+Theta1_grad(:,2:end)=Theta1_grad(:,2:end)+(lambda/m)*Theta_1(:,2:end);
+Theta2_grad(:,2:end)=Theta2_grad(:,2:end)+(lambda/m)*Theta_2(:,2:end);
 % =========================================================================
 
 % Unroll gradients
 grad = [Theta1_grad(:) ; Theta2_grad(:)];
-
 
 end
